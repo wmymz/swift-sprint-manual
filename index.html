@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Swift 一周冲刺学习手册 · 写给 ObjC 老手</title>
+<style>
+  :root {
+    --bg: #fafafa;
+    --ink: #131313;
+    --ink-2: #4d4d4b;
+    --ink-3: #8b8b87;
+    --hair: #e2e2df;
+    --hair-2: #eeeeec;
+    --accent: #b8391d;        /* 链接与文字强调 */
+    --accent-mark: #f05138;   /* 大字号标记（Swift 品牌橙，同族） */
+    --code-bg: #efeeec;
+    --mono: "SF Mono", Menlo, Consolas, "Courier New", monospace;
+    --sans: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    --sans-latin: "Avenir Next", "Helvetica Neue", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--accent); text-decoration: underline; text-decoration-color: rgba(184,57,29,.28); text-underline-offset: 2.5px; }
+  a:hover { text-decoration-color: var(--accent); }
+  code, .mono { font-family: var(--mono); font-size: 13px; background: var(--code-bg); padding: 1px 5px; border-radius: 3px; }
+  a code { background: transparent; padding: 0; }
+  sup { font-family: var(--mono); font-size: 10px; color: var(--ink-3); }
+
+  /* ---------- 封面 ---------- */
+  .cover { max-width: 1240px; margin: 0 auto; padding: 72px 32px 44px; }
+  .kicker { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 22px; }
+  .kicker b { color: var(--accent); font-weight: 500; }
+  h1 { font-family: var(--sans-latin); font-size: 46px; font-weight: 600; line-height: 1.12; letter-spacing: -0.02em; max-width: 22em; }
+  .lede { margin-top: 18px; font-size: 17px; color: var(--ink-2); max-width: 46em; }
+  .meta-row { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--ink); margin-top: 40px; }
+  .meta-cell { padding: 14px 20px 4px 0; }
+  .meta-cell + .meta-cell { border-left: 1px solid var(--hair); padding-left: 20px; }
+  .meta-cell dt { font-family: var(--mono); font-size: 10.5px; letter-spacing: .09em; text-transform: uppercase; color: var(--ink-3); }
+  .meta-cell dd { margin-top: 6px; font-size: 13.5px; line-height: 1.55; }
+
+  /* ---------- 版式骨架 ---------- */
+  .layout { max-width: 1240px; margin: 0 auto; padding: 0 32px 72px; display: grid; grid-template-columns: 200px minmax(0,1fr); gap: 52px; }
+  nav.toc { position: sticky; top: 28px; align-self: start; padding-top: 8px; }
+  nav.toc .toc-cap { font-family: var(--mono); font-size: 10.5px; letter-spacing: .09em; text-transform: uppercase; color: var(--ink-3); padding-bottom: 10px; border-bottom: 1px solid var(--ink); }
+  nav.toc ol { list-style: none; margin-top: 10px; }
+  nav.toc li a { display: flex; gap: 9px; padding: 6.5px 0; font-size: 12.5px; color: var(--ink-2); text-decoration: none; border-bottom: 1px solid var(--hair-2); }
+  nav.toc li a .n { font-family: var(--mono); font-size: 10.5px; color: var(--ink-3); padding-top: 2px; }
+  nav.toc li a:hover { color: var(--accent); }
+  nav.toc li a.cur { color: var(--accent); }
+
+  main { min-width: 0; }
+  section { padding-top: 46px; }
+  .sec-head { display: flex; align-items: baseline; gap: 14px; border-bottom: 1px solid var(--ink); padding-bottom: 10px; }
+  .sec-num { font-family: var(--mono); font-size: 12px; color: var(--accent); }
+  .sec-head h2 { font-family: var(--sans-latin); font-size: 24px; font-weight: 600; letter-spacing: -0.01em; }
+  .sec-head .dur { margin-left: auto; font-family: var(--mono); font-size: 11px; color: var(--ink-3); letter-spacing: .04em; }
+  h3 { font-family: var(--sans-latin); font-size: 16.5px; font-weight: 600; margin: 34px 0 12px; }
+  h3 .tag { font-family: var(--mono); font-size: 10.5px; font-weight: 400; letter-spacing: .07em; text-transform: uppercase; color: var(--ink-3); margin-left: 10px; }
+  p { max-width: 72ch; margin-bottom: 12px; color: var(--ink); }
+  p.small-note { font-size: 12.5px; color: var(--ink-3); max-width: 72ch; }
+  blockquote { border-left: 2px solid var(--accent-mark); padding: 2px 0 2px 16px; margin: 16px 0; color: var(--ink-2); font-size: 14.5px; max-width: 68ch; }
+  blockquote cite { display: block; font-style: normal; font-family: var(--mono); font-size: 11px; color: var(--ink-3); margin-top: 6px; }
+
+  /* ---------- 表格 ---------- */
+  table { width: 100%; border-collapse: collapse; margin: 14px 0 8px; font-size: 13.5px; }
+  th { text-align: left; font-family: var(--mono); font-weight: 500; font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); border-bottom: 1px solid var(--ink); padding: 8px 12px 7px 0; }
+  td { border-bottom: 1px solid var(--hair); padding: 9px 12px 9px 0; vertical-align: top; line-height: 1.55; }
+  td .lv { font-family: var(--mono); font-size: 11px; white-space: nowrap; }
+  .lv-r { color: var(--accent); }
+  .lv-o { color: var(--ink-2); }
+  .lv-s { color: var(--ink-3); }
+  td.dim, .dim { color: var(--ink-2); }
+
+  /* ---------- 列表 ---------- */
+  ol.tasks { margin: 8px 0 10px 22px; max-width: 72ch; }
+  ol.tasks li { margin-bottom: 9px; }
+  ul.tight { margin: 8px 0 10px 22px; max-width: 72ch; }
+  ul.tight li { margin-bottom: 7px; }
+
+  /* ---------- 自测 ---------- */
+  details { border-bottom: 1px solid var(--hair); padding: 9px 0; max-width: 72ch; }
+  details summary { cursor: pointer; font-weight: 550; font-size: 14px; list-style-position: outside; }
+  details p { margin: 9px 0 2px; font-size: 13.5px; color: var(--ink-2); }
+
+  /* ---------- Day 头 ---------- */
+  .day-badge { font-family: var(--mono); font-size: 13px; letter-spacing: .12em; color: var(--accent); margin-bottom: 6px; }
+  .day-out { margin: 6px 0 0; font-size: 13px; color: var(--ink-2); max-width: 72ch; }
+  .day-out b { font-weight: 550; color: var(--ink); }
+
+  /* ---------- 收尾 ---------- */
+  .colophon { margin-top: 56px; border-top: 1px solid var(--ink); padding-top: 16px; font-size: 12px; color: var(--ink-3); line-height: 1.7; max-width: 76ch; }
+  .foot-mark { font-family: var(--mono); font-size: 26px; color: var(--accent-mark); letter-spacing: .2em; margin-bottom: 8px; }
+
+  @media (max-width: 960px) {
+    .layout { grid-template-columns: 1fr; gap: 24px; }
+    nav.toc { position: static; border-top: 1px solid var(--hair); padding-top: 16px; }
+    nav.toc ol { columns: 2; }
+    h1 { font-size: 34px; }
+    .meta-row { grid-template-columns: repeat(2, 1fr); }
+    .meta-cell:nth-child(3) { border-left: none; padding-left: 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= 封面 ================= -->
+<header class="cover">
+  <div class="kicker">TSPL 6.2.3 中文版 · SwiftGG 翻译组 · 学习路线与考点索引</div>
+  <h1>Swift 一周冲刺学习手册</h1>
+  <p class="lede">写给有 8 年 Objective-C 经验的 iOS 工程师：用 7 天建立能通过面试的 Swift 语言心智模型。不是把整本书读一遍，而是把「ObjC 里没有的」和「面试必问的」挑出来精读。</p>
+  <dl class="meta-row">
+    <div class="meta-cell"><dt>适用人群</dt><dd>熟练 ObjC / Cocoa，未系统学过 Swift</dd></div>
+    <div class="meta-cell"><dt>目标</dt><dd>面试级掌握：说得清机制，写得出代码</dd></div>
+    <div class="meta-cell"><dt>节奏</dt><dd>7 天 · 每天 3–4 小时 · 总投入约 22–25 小时</dd></div>
+    <div class="meta-cell"><dt>主线资料</dt><dd>《The Swift Programming Language》中文版（doc.swiftgg.team）</dd></div>
+  </dl>
+</header>
+
+<div class="layout">
+<!-- ================= 目录 ================= -->
+<nav class="toc" aria-label="目录">
+  <div class="toc-cap">目录 · Contents</div>
+  <ol>
+    <li><a href="#intro"><span class="n">00</span>怎么用这份手册</a></li>
+    <li><a href="#map"><span class="n">01</span>全书阅读地图</a></li>
+    <li><a href="#day1"><span class="n">D1</span>导览通读 + 基础语法</a></li>
+    <li><a href="#day2"><span class="n">D2</span>集合与控制流</a></li>
+    <li><a href="#day3"><span class="n">D3</span>函数与闭包</a></li>
+    <li><a href="#day4"><span class="n">D4</span>枚举 · 结构体 · 类</a></li>
+    <li><a href="#day5"><span class="n">D5</span>协议 · 扩展 · 初始化</a></li>
+    <li><a href="#day6"><span class="n">D6</span>内存 · 错误 · 并发</a></li>
+    <li><a href="#day7"><span class="n">D7</span>混编 · 复习 · 模拟面</a></li>
+    <li><a href="#quiz"><span class="n">02</span>高频考点速查</a></li>
+    <li><a href="#cheat"><span class="n">03</span>ObjC ↔ Swift 速查</a></li>
+    <li><a href="#extra"><span class="n">04</span>补充资料</a></li>
+  </ol>
+</nav>
+
+<main>
+
+<!-- ================= 00 导读 ================= -->
+<section id="intro">
+  <div class="sec-head"><span class="sec-num">00</span><h2>怎么用这份手册</h2></div>
+  <p>你的优势是心智模型已经齐了：ARC、委托、分类、Block、GCD 这些概念你用了 8 年。Swift 的大部分概念都能在 ObjC 里找到对应物，<b>真正的拦路虎只有三样：Optional、值类型语义、协议派发</b>——而这三样恰好是面试最爱问的。所以这份手册的时间分配偏向它们。</p>
+  <p>每天按固定套路走三步，缺一不可：</p>
+  <ol class="tasks">
+    <li><b>读</b>——按当天阅读清单读文档对应章节（链接都指向 doc.swiftgg.team，已逐条核验可访问）。先读「Swift 导览」建立全景，再钻进各章。</li>
+    <li><b>练</b>——在 Xcode Playground 里手敲当天示例（File → New → Playground）。手敲不复制，肌肉记忆是面试现场白板写的底气。</li>
+    <li><b>测</b>——闭卷回答当天「面试自测」题，点开答案核对要点。答不上来的，回到对应章节重读那一小节。</li>
+  </ol>
+  <p>时长均为估计值，仅供排期参考；以「能独立讲清楚」为完成标准，不以读完为标准。</p>
+</section>
+
+<!-- ================= 01 全书地图 ================= -->
+<section id="map">
+  <div class="sec-head"><span class="sec-num">01</span><h2>全书阅读地图</h2><span class="dur">TSPL 6.2.3 · 35 个内容章节全标注</span></div>
+  <p>「粗略掌握」不等于通读全书。下表把整本书切成三档：<span class="lv lv-r">精读</span>（含练习）、<span class="lv lv-o">选读</span>（快速过，记住概念）、<span class="lv lv-s">跳过</span>（面试不问，需要时当字典查）。</p>
+  <table>
+    <thead><tr><th style="width:31%">章节（点击直达 swiftgg）</th><th style="width:9%">级别</th><th style="width:14%">安排</th><th>为什么这样安排</th></tr></thead>
+    <tbody>
+      <tr><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/guidedtour/">Swift 导览</a></td><td class="lv lv-r">精读</td><td class="mono">Day 1 · 60–90 分</td><td class="dim">全书缩影，一口气读完建立全景；Day 7 再复读一遍检验</td></tr>
+      <tr><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/thebasics/">基础知识</a></td><td class="lv lv-r">精读</td><td class="mono">Day 1 · 40 分</td><td class="dim">let/var、Optional、元组——Day 1 的核心</td></tr>
+      <tr><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/basicoperators/">基本运算符</a></td><td class="lv lv-o">选读</td><td class="mono">Day 1 · 15 分</td><td class="dim">重点看区间运算符 <code>0..&lt;n</code> 与空合运算符 <code>??</code></td></tr>
+      <tr><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/stringsandcharacters/">字符串和字符</a></td><td class="lv lv-o">选读</td><td class="mono">Day 1 · 15 分</td><td class="dim">插值与多行字符串，替代 <code>stringWithFormat:</code></td></tr>
+      <tr><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/optionalchaining/">可选链式调用</a></td><td class="lv lv-o">选读</td><td class="mono">Day 1 · 10 分</td><td class="dim"><code>?.</code> 链式取值，对接「ObjC 向 nil 发消息返回 nil」的直觉</td></tr>
+      <tr><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/collectiontypes/">集合类型</a></td><td class="lv lv-r">精读</td><td class="mono">Day 2 · 40 分</td><td class="dim">Array/Dictionary/Set 三件套 + 值语义（与 NSArray 引用语义相反）</td></tr>
+      <tr><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/controlflow/">控制流</a></td><td class="lv lv-r">精读</td><td class="mono">Day 2 · 40 分</td><td class="dim">switch 模式匹配是 ObjC 没有的能力；guard 也在此章</td></tr>
+      <tr><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/nestedtypes/">嵌套类型</a></td><td class="lv lv-o">选读</td><td class="mono">Day 2 · 5 分</td><td class="dim">很短；struct 内嵌 enum 是常见组织手法</td></tr>
+      <tr><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/functions/">函数</a></td><td class="lv lv-r">精读</td><td class="mono">Day 3 · 30 分</td><td class="dim">参数标签、默认值、inout、函数作为一等类型</td></tr>
+      <tr><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/closures/">闭包</a></td><td class="lv lv-r">精读</td><td class="mono">Day 3 · 50 分</td><td class="dim">面试必考。闭包表达式、尾随闭包、逃逸闭包、捕获</td></tr>
+      <tr><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/enumerations/">枚举</a></td><td class="lv lv-r">精读</td><td class="mono">Day 4 · 30 分</td><td class="dim">关联值——ObjC 枚举做不到的「case 携带数据」</td></tr>
+      <tr><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/classesandstructures/">结构体和类</a></td><td class="lv lv-r">精读</td><td class="mono">Day 4 · 40 分</td><td class="dim">值 vs 引用、身份运算符、选择标准——最高频面试区</td></tr>
+      <tr><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/properties/">属性</a></td><td class="lv lv-r">精读</td><td class="mono">Day 4 · 40 分</td><td class="dim">存储/计算/观察器/lazy/类型属性</td></tr>
+      <tr><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/methods/">方法</a></td><td class="lv lv-r">精读</td><td class="mono">Day 4 · 25 分</td><td class="dim">mutating、static 与 class 的区别</td></tr>
+      <tr><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/subscripts/">下标</a></td><td class="lv lv-o">选读</td><td class="mono">Day 4 · 10 分</td><td class="dim"><code>subscript</code> 语法，自定义容器时用</td></tr>
+      <tr><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/inheritance/">继承</a></td><td class="lv lv-o">选读</td><td class="mono">Day 5 · 15 分</td><td class="dim">类继承仍在，但在 Swift 里退居其次</td></tr>
+      <tr><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/initialization/">构造过程</a></td><td class="lv lv-r">精读</td><td class="mono">Day 5 · 50 分</td><td class="dim">指定/便捷构造器、两段式初始化——与 ObjC init 差异大，必考</td></tr>
+      <tr><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/extensions/">扩展</a></td><td class="lv lv-r">精读</td><td class="mono">Day 5 · 20 分</td><td class="dim">能做/不能做清单，对比 ObjC category</td></tr>
+      <tr><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/protocols/">协议</a></td><td class="lv lv-r">精读</td><td class="mono">Day 5 · 50 分</td><td class="dim">委托模式、协议扩展默认实现、面向协议编程</td></tr>
+      <tr><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/generics/">泛型</a></td><td class="lv lv-r">精读</td><td class="mono">Day 5 · 40 分</td><td class="dim">泛型函数/类型、where 约束（前半章必读）</td></tr>
+      <tr><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/opaquetypes/">不透明类型和封装协议类型</a></td><td class="lv lv-r">精读</td><td class="mono">Day 5 · 15 分</td><td class="dim"><code>some</code> 与 <code>any</code> 的区别——近年新题</td></tr>
+      <tr><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/automaticreferencecounting/">自动引用计数</a></td><td class="lv lv-r">精读</td><td class="mono">Day 6 · 50 分</td><td class="dim">weak/unowned、闭包循环引用与捕获列表</td></tr>
+      <tr><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/errorhandling/">错误处理</a></td><td class="lv lv-r">精读</td><td class="mono">Day 6 · 40 分</td><td class="dim">do-try-catch、try?/try!、defer</td></tr>
+      <tr><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/typecasting/">类型转换</a></td><td class="lv lv-r">精读</td><td class="mono">Day 6 · 15 分</td><td class="dim">as / is / as? / as! 与 any 转换</td></tr>
+      <tr><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/accesscontrol/">访问控制</a></td><td class="lv lv-r">精读</td><td class="mono">Day 6 · 20 分</td><td class="dim">open/public/internal/fileprivate/private 五级</td></tr>
+      <tr><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/deinitialization/">析构过程</a></td><td class="lv lv-o">选读</td><td class="mono">Day 6 · 5 分</td><td class="dim">很短；deinit 触发时机</td></tr>
+      <tr><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/memorysafety/">内存安全</a></td><td class="lv lv-o">选读</td><td class="mono">Day 6 · 10 分</td><td class="dim">知道「独占访问」概念即可</td></tr>
+      <tr><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/concurrency/">并发</a></td><td class="lv lv-r">精读</td><td class="mono">Day 6 · 60 分</td><td class="dim">async/await、Task、actor、Sendable——近年面试新宠</td></tr>
+      <tr><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/aboutswift/">关于 Swift</a></td><td class="lv lv-s">跳过</td><td class="mono">—</td><td class="dim">介绍性文字</td></tr>
+      <tr><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/compatibility/">版本兼容性</a></td><td class="lv lv-s">跳过</td><td class="mono">—</td><td class="dim">面试聊到 Swift 版本/语言模式时回来翻</td></tr>
+      <tr><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/macros/">宏</a></td><td class="lv lv-s">跳过</td><td class="mono">—</td><td class="dim">宏编程，一周冲刺范围内用不上</td></tr>
+      <tr><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/advancedoperators/">高级运算符</a></td><td class="lv lv-s">跳过</td><td class="mono">—</td><td class="dim">位运算/运算符重载，面试极少问</td></tr>
+      <tr><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/aboutthelanguagereference/">关于语言参考</a></td><td class="lv lv-s">跳过</td><td class="mono">—</td><td class="dim">语法手册入口</td></tr>
+      <tr><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/lexicalstructure/">词法结构</a></td><td class="lv lv-s">跳过</td><td class="mono">—</td><td class="dim">词法细节，当字典查</td></tr>
+      <tr><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/types/">类型（语言参考）</a></td><td class="lv lv-s">跳过</td><td class="mono">—</td><td class="dim">形式语法，当字典查</td></tr>
+    </tbody>
+  </table>
+  <p class="small-note">纯阅读约 15 小时；加上动手与自测，总投入约 22–25 小时，与每天 3–4 小时 × 7 天匹配。</p>
+</section>
+
+<!-- ================= Day 1 ================= -->
+<section id="day1">
+  <div class="sec-head"><span class="sec-num">D1</span><h2>导览通读 + 基础语法</h2><span class="dur">约 3.5 小时</span></div>
+  <p class="day-out"><b>今天的产出：</b>把导览 9 个小节的示例全部手敲过一遍；能不查资料说清 Optional 是什么、guard 和 if let 怎么选。</p>
+
+  <h3>阅读清单<span class="tag">Reading</span></h3>
+  <table>
+    <thead><tr><th style="width:28%">章节</th><th style="width:9%">级别</th><th>重点提示</th></tr></thead>
+    <tbody>
+      <tr><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/guidedtour/">Swift 导览</a>（全 9 节）</td><td class="lv lv-r">精读</td><td class="dim">简单值 → 控制流 → 函数和闭包 → 对象和类 → 枚举和结构体 → 并发性 → 协议和扩展 → 错误处理 → 泛型。第一遍允许似懂非懂，后面 6 天会逐个击破</td></tr>
+      <tr><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/thebasics/">基础知识</a></td><td class="lv lv-r">精读</td><td class="dim">常量与变量、类型安全与推断、元组、Optional 全节——这是 ObjC 里没有的核心概念</td></tr>
+      <tr><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/basicoperators/">基本运算符</a></td><td class="lv lv-o">选读</td><td class="dim">区间 <code>..&lt;</code> <code>...</code>、空合 <code>??</code>，后续天天用</td></tr>
+      <tr><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/stringsandcharacters/">字符串和字符</a></td><td class="lv lv-o">选读</td><td class="dim">插值 <code>\(x)</code>、<code>"""</code> 多行字符串</td></tr>
+      <tr><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/optionalchaining/">可选链式调用</a></td><td class="lv lv-o">选读</td><td class="dim"><code>?.</code> 整条链任何一环为 nil 即整体为 nil</td></tr>
+    </tbody>
+  </table>
+
+  <h3>ObjC → Swift 对照<span class="tag">Mapping</span></h3>
+  <table>
+    <thead><tr><th style="width:34%">ObjC 世界</th><th style="width:30%">Swift 世界</th><th>要点</th></tr></thead>
+    <tbody>
+      <tr><td><code>const</code> / <code>readonly</code></td><td><code>let</code></td><td class="dim"><code>let</code> 只保证「只赋值一次」，值不必在编译期确定——比 const 宽</td></tr>
+      <tr><td>隐式类型转换（如整型提升）</td><td>无，一律显式构造</td><td class="dim"><code>Int</code> 转 <code>Double</code> 必须写 <code>Double(i)</code></td></tr>
+      <tr><td><code>nil</code> / <code>NULL</code> / <code>Nil</code> / <code>NSNull</code></td><td>统一 <code>nil</code></td><td class="dim">只有 Optional 类型可以为 nil，编译期就拦住「忘记判空」</td></tr>
+      <tr><td><code>stringWithFormat:</code></td><td>插值 <code>\(x)</code></td><td class="dim">任意表达式都能插</td></tr>
+      <tr><td>多返回值用 out 参数 / 字典</td><td>元组 <code>(min: Int, max: Int)</code></td><td class="dim">按名字或序号取</td></tr>
+    </tbody>
+  </table>
+
+  <h3>动手练<span class="tag">Practice</span></h3>
+  <ol class="tasks">
+    <li>在 Playground 把导览 9 节示例逐行手敲一遍（不复制粘贴），报错就地弄懂。</li>
+    <li>写 <code>func sanitize(_ s: String?) -&gt; String</code>：分别用 <code>guard let</code> 和 <code>??</code> 各实现一次。</li>
+    <li>做导览内置练习：Float 常量、删掉 <code>String()</code> 转换看报错、把 <code>optionalName</code> 置 nil 观察 <code>if let</code> 行为。</li>
+  </ol>
+
+  <h3>面试自测<span class="tag">Self-check</span></h3>
+  <details><summary>Optional 的本质是什么？</summary><p>是一个标准库泛型枚举：<code>enum Optional&lt;Wrapped&gt; { case none, case some(Wrapped) }</code>。<code>nil</code> 就是 <code>.none</code>，有值就是 <code>.some(v)</code>。导览的泛型一节亲手复刻过它（<a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/guidedtour/#%E6%B3%9B%E5%9E%8B">导览 · 泛型</a>）。</p></details>
+  <details><summary>guard let 相比 if let 的优势？</summary><p>guard 强制走「条件不满足就提前退出」，把主逻辑保持在同一缩进层级；解包出的变量在 guard 之后的整个作用域可用，而 if let 只在花括号内可用。</p></details>
+  <details><summary>let 和 ObjC 的 const 差在哪？</summary><p>const 要求编译期常量；let 只要求「有且仅赋值一次」，右侧可以等运行期求值。原文见<a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/guidedtour/#%E7%AE%80%E5%8D%95%E5%80%BC">导览 · 简单值</a>。</p></details>
+</section>
+
+<!-- ================= Day 2 ================= -->
+<section id="day2">
+  <div class="sec-head"><span class="sec-num">D2</span><h2>集合与控制流</h2><span class="dur">约 3 小时</span></div>
+  <p class="day-out"><b>今天的产出：</b>能解释「Swift 数组赋值给另一个变量后互不影响」的原理；能用 switch 区间/元组/where 写出分支逻辑。</p>
+
+  <h3>阅读清单<span class="tag">Reading</span></h3>
+  <table>
+    <thead><tr><th style="width:28%">章节</th><th style="width:9%">级别</th><th>重点提示</th></tr></thead>
+    <tbody>
+      <tr><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/collectiontypes/">集合类型</a></td><td class="lv lv-r">精读</td><td class="dim">数组、集合、字典的增删改查 + <b>集合的可变性</b>一节——值类型语义从这里开始分岔</td></tr>
+      <tr><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/controlflow/">控制流</a></td><td class="lv lv-r">精读</td><td class="dim">switch 的模式匹配（区间、元组、值绑定、where）、无隐式穿透、必须可穷举；guard 提前退出</td></tr>
+      <tr><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/nestedtypes/">嵌套类型</a></td><td class="lv lv-o">选读</td><td class="dim">很短，记住「类型可以嵌套」即可</td></tr>
+    </tbody>
+  </table>
+
+  <h3>ObjC → Swift 对照<span class="tag">Mapping</span></h3>
+  <table>
+    <thead><tr><th style="width:34%">ObjC 世界</th><th style="width:30%">Swift 世界</th><th>要点</th></tr></thead>
+    <tbody>
+      <tr><td><code>NSArray</code> / <code>NSMutableArray</code></td><td><code>[T]</code>（let/var 控制可变）</td><td class="dim">可变性和引用性解耦了：Swift 数组永远是值类型，赋值即拷贝</td></tr>
+      <tr><td><code>NSDictionary</code> / <code>NSSet</code></td><td><code>[K: V]</code> / <code>Set&lt;T&gt;</code></td><td class="dim">键值都有类型约束，取值返回 Optional</td></tr>
+      <tr><td>快速枚举 for-in</td><td><code>for-in</code> + 区间</td><td class="dim"><code>0..&lt;n</code> 不含上界，<code>0...n</code> 含上界</td></tr>
+      <tr><td>switch 只支持整型/枚举，忘 break 会穿透</td><td>任意类型匹配，自动不穿透</td><td class="dim">必须穷举所有可能，否则编译不过</td></tr>
+      <tr><td>层层嵌套 if 判空</td><td><code>guard</code> 提前返回</td><td class="dim">卫语句写法，主逻辑不缩进</td></tr>
+    </tbody>
+  </table>
+
+  <h3>动手练<span class="tag">Practice</span></h3>
+  <ol class="tasks">
+    <li>用 switch 区间匹配写成绩分级，至少一个分支带 <code>where</code> 过滤。</li>
+    <li>遍历 <code>[String: [Int]]</code>（导览「有趣数字」练习的变体），找出最大值及其所属 key。</li>
+    <li>写 <code>validate(_ user: [String: Any]) -&gt; String?</code>，用三层以上 guard 链提取并校验字段，体会卫语句的好处。</li>
+  </ol>
+
+  <h3>面试自测<span class="tag">Self-check</span></h3>
+  <details><summary>数组赋值给另一个变量、修改其中一个，为什么互不影响？</summary><p>Swift 的 Array/Dictionary/Set/String 都是值类型：赋值和传参发生拷贝（配合写时复制优化，见 Day 4）。这和 NSArray 的引用语义正好相反，是面试最经典的对比题。</p></details>
+  <details><summary>switch 不写 default 什么时候合法？</summary><p>当所有 case 已穷举，例如对无原始值约束的枚举逐 case 匹配、对元组按关联值穷尽匹配。编译器做穷举检查——这也是它敢去掉隐式穿透的底气。</p></details>
+  <details><summary>guard 和 if let 各适合什么场景？</summary><p>失败路径短、要求「不满足就离开」的场景用 guard（参数校验、解包后还要继续用）；只是局部用一下解包值的场景用 if let。</p></details>
+</section>
+
+<!-- ================= Day 3 ================= -->
+<section id="day3">
+  <div class="sec-head"><span class="sec-num">D3</span><h2>函数与闭包</h2><span class="dur">约 3.5 小时</span></div>
+  <p class="day-out"><b>今天的产出：</b>能把一个完整闭包表达式四步简写成 <code>$0</code> 形式；能解释 @escaping 与循环引用的关系（Day 6 彻底修复）。</p>
+
+  <h3>阅读清单<span class="tag">Reading</span></h3>
+  <table>
+    <thead><tr><th style="width:28%">章节</th><th style="width:9%">级别</th><th>重点提示</th></tr></thead>
+    <tbody>
+      <tr><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/functions/">函数</a></td><td class="lv lv-r">精读</td><td class="dim">参数标签与省略 <code>_</code>、默认参数、inout、函数类型作参数/返回值、嵌套函数</td></tr>
+      <tr><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/closures/">闭包</a></td><td class="lv lv-r">精读</td><td class="dim">全章：闭包表达式、尾随闭包、类型推断、<code>$0</code> 简写、逃逸闭包 @escaping、捕获上下文</td></tr>
+    </tbody>
+  </table>
+
+  <h3>ObjC → Swift 对照<span class="tag">Mapping</span></h3>
+  <table>
+    <thead><tr><th style="width:34%">ObjC 世界</th><th style="width:30%">Swift 世界</th><th>要点</th></tr></thead>
+    <tbody>
+      <tr><td><code>block</code></td><td>闭包 <code>{ (a: Int) -&gt; Int in ... }</code></td><td class="dim">同为「代码 + 捕获环境」，但捕获语义有差异，见下一行</td></tr>
+      <tr><td>block 创建时对局部变量做值快照（<code>__block</code> 才共享）</td><td>闭包默认捕获「变量本身」，捕获列表 <code>[x]</code> 才做值快照</td><td class="dim">这是 block ↔ closure 最容易答错的差异点</td></tr>
+      <tr><td>block 需要跨栈存活时 copy 到堆</td><td><code>@escaping</code> 显式标注</td><td class="dim">逃逸 = 可能在函数返回后才被调用；默认非逃逸，编译器可优化</td></tr>
+      <tr><td><code>__weak typeof(self) weakSelf = self</code></td><td>捕获列表 <code>[weak self]</code></td><td class="dim">写法更短，语义一致；循环引用修复在 Day 6 ARC 章展开</td></tr>
+      <tr><td><code>SEL</code> / 函数指针</td><td>函数类型是一等公民</td><td class="dim">函数能当参数、返回值、存属性</td></tr>
+    </tbody>
+  </table>
+
+  <h3>动手练<span class="tag">Practice</span></h3>
+  <ol class="tasks">
+    <li>把 <code>numbers.sorted</code> 的比较器从完整形式四步简写：标全类型 → 省类型 → 单表达式隐式返回 → <code>$0 &gt; $1</code>，每步都能编译运行。</li>
+    <li>写一个 <code>class Downloader</code>，属性存储 escaping 闭包并稍后调用——先让循环引用发生（用 deinit 打印观察），Day 6 再修。</li>
+    <li>用 <code>map / filter / reduce</code> 链式统计一组数字：偶数翻倍后求和。</li>
+  </ol>
+
+  <h3>面试自测<span class="tag">Self-check</span></h3>
+  <details><summary>@escaping 是什么？为什么默认非逃逸？</summary><p>标注闭包可能逃出函数生命周期（存属性、异步调用）。默认非逃逸让编译器明确闭包不会活得比函数久，省去堆分配与强引用管理成本，也避免调用方无意识造成循环引用。</p></details>
+  <details><summary>Swift 闭包捕获和 block 捕获的差异？</summary><p>block 在创建时对局部变量做值快照；Swift 闭包默认捕获变量本身（共享同一存储），需要创建时快照要用捕获列表 <code>[x]</code>。值类型在捕获列表里复制，引用类型则弱/无主引用。</p></details>
+  <details><summary>尾随闭包什么时候让代码更清晰？</summary><p>闭包是最后一个参数且较长时（map、Task、动画 API）。闭包是唯一参数时括号都能省——导览里 <code>sorted { $0 &gt; $1 }</code> 就是终极形态。</p></details>
+</section>
+
+<!-- ================= Day 4 ================= -->
+<section id="day4">
+  <div class="sec-head"><span class="sec-num">D4</span><h2>枚举 · 结构体 · 类</h2><span class="dur">约 4 小时</span></div>
+  <p class="day-out"><b>今天的产出：</b>能用关联值建模网络结果；能用一段话讲清 struct vs class 的选择标准和写时复制。</p>
+  <blockquote>「它们之间最大的一个区别就是结构体是传值，类是传引用。」
+    <cite>—— <a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/guidedtour/#%E6%9E%9A%E4%B8%BE%E5%92%8C%E7%BB%93%E6%9E%84%E4%BD%93">Swift 导览 · 枚举和结构体</a>，整本书最重要的一句话</cite>
+  </blockquote>
+
+  <h3>阅读清单<span class="tag">Reading</span></h3>
+  <table>
+    <thead><tr><th style="width:28%">章节</th><th style="width:9%">级别</th><th>重点提示</th></tr></thead>
+    <tbody>
+      <tr><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/enumerations/">枚举</a></td><td class="lv lv-r">精读</td><td class="dim">原始值 rawValue、<code>init?(rawValue:)</code>、<b>关联值</b>、switch 提取；递归枚举 indirect 了解即可</td></tr>
+      <tr><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/classesandstructures/">结构体和类</a></td><td class="lv lv-r">精读</td><td class="dim">值语义 vs 引用语义、<code>===</code> 身份、struct 与 class 的选择标准</td></tr>
+      <tr><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/properties/">属性</a></td><td class="lv lv-r">精读</td><td class="dim">存储/计算属性、<code>willSet/didSet</code>、<code>lazy</code>、类型属性 <code>static</code></td></tr>
+      <tr><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/methods/">方法</a></td><td class="lv lv-r">精读</td><td class="dim"><code>mutating</code> 方法、<code>static</code> 与 <code>class</code> 的区别</td></tr>
+      <tr><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/subscripts/">下标</a></td><td class="lv lv-o">选读</td><td class="dim">自定义 <code>[]</code> 取值语法</td></tr>
+    </tbody>
+  </table>
+
+  <h3>ObjC → Swift 对照<span class="tag">Mapping</span></h3>
+  <table>
+    <thead><tr><th style="width:34%">ObjC 世界</th><th style="width:30%">Swift 世界</th><th>要点</th></tr></thead>
+    <tbody>
+      <tr><td><code>NS_ENUM</code> + rawValue</td><td><code>enum ... : Int/String</code> + rawValue</td><td class="dim">更进一步：关联值让每个 case 自带数据，ObjC 做不到</td></tr>
+      <tr><td>状态 + 数据用「枚举 + 附带字段」拼凑</td><td>enum 关联值 + switch 提取</td><td class="dim">如 <code>.success(data)</code> / <code>.failure(msg)</code>，非法状态无法被构造出来</td></tr>
+      <tr><td><code>@property</code></td><td>存储属性 / 计算属性 <code>{ get set }</code></td><td class="dim">计算属性每次访问都执行 getter，无存储</td></tr>
+      <tr><td>手动 KVO / 通知观察属性变化</td><td><code>willSet / didSet</code></td><td class="dim">语言内建；构造器中的赋值不触发观察器</td></tr>
+      <tr><td>模型层一般写 class</td><td>官方建议默认 struct</td><td class="dim">需要继承、身份语义、与 ObjC 互操作时才用 class</td></tr>
+    </tbody>
+  </table>
+
+  <h3>动手练<span class="tag">Practice</span></h3>
+  <ol class="tasks">
+    <li>写 <code>enum NetworkError: Error { case timeout(retryAfter: Int), badURL(String), server(Int) }</code>，用 switch 提取关联值并拼出错误文案。</li>
+    <li>写 <code>struct Card</code> 带 <code>mutating func flip()</code>；把同一实例赋给两个变量各自修改，验证互不影响；再用 class 重复实验，对比引用语义。</li>
+    <li>给 <code>Rectangle</code> 写计算属性 <code>area</code>，并在 <code>width</code> 的 <code>didSet</code> 里联动约束 <code>height</code>。</li>
+  </ol>
+
+  <h3>面试自测<span class="tag">Self-check</span></h3>
+  <details><summary>struct 和 class 怎么选？官方标准是什么？</summary><p>官方倾向默认用 struct：值语义、无继承负担、线程更安全；需要继承体系、引用身份（<code>===</code>）、deinit 生命周期或与 ObjC 类互操作时用 class。补充阅读：<a href="https://developer.apple.com/documentation/swift/choosing-between-structures-and-classes">Apple：Choosing Between Structures and Classes</a>（文档外资料）。</p></details>
+  <details><summary>写时复制（Copy-on-Write）是什么？</summary><p>标准库值类型（Array/String/Dictionary）赋值时并不立刻深拷贝，而是共享底层存储；任一方要写时才真正拷贝。所以「值语义」通常不意味着性能灾难。行为依据见<a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/classesandstructures/">结构体和类</a>的值语义部分。</p></details>
+  <details><summary>为什么值类型的方法改属性要标 mutating？</summary><p>值类型方法里的 self 默认是 let 语义；mutating 表示「这个方法可能替换 self 的值」，编译器据此禁止在 let 常量上调用它。类方法不需要，因为类本来就是引用。</p></details>
+</section>
+
+<!-- ================= Day 5 ================= -->
+<section id="day5">
+  <div class="sec-head"><span class="sec-num">D5</span><h2>协议 · 扩展 · 泛型 · 初始化</h2><span class="dur">约 4 小时</span></div>
+  <p class="day-out"><b>今天的产出：</b>能用协议 + 默认实现搭一个可复用的小模块；能讲清两段式初始化和 some/any 的区别。</p>
+
+  <h3>阅读清单<span class="tag">Reading</span></h3>
+  <table>
+    <thead><tr><th style="width:28%">章节</th><th style="width:9%">级别</th><th>重点提示</th></tr></thead>
+    <tbody>
+      <tr><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/initialization/">构造过程</a></td><td class="lv lv-r">精读</td><td class="dim">指定构造器 vs 便捷构造器、两段式初始化、可失败构造器 <code>init?</code></td></tr>
+      <tr><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/extensions/">扩展</a></td><td class="lv lv-r">精读</td><td class="dim">能加：方法、计算属性、新协议遵循；不能加：存储属性、override 已有方法</td></tr>
+      <tr><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/protocols/">协议</a></td><td class="lv lv-r">精读</td><td class="dim">属性要求、mutating 要求、<code>AnyObject</code> 约束的委托、协议扩展默认实现</td></tr>
+      <tr><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/generics/">泛型</a></td><td class="lv lv-r">精读</td><td class="dim">泛型函数/类型、约束、where 子句；关联类型一节通读即可</td></tr>
+      <tr><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/opaquetypes/">不透明类型和封装协议类型</a></td><td class="lv lv-r">精读</td><td class="dim"><code>some</code>（隐藏具体类型，编译期单一定型）与 <code>any</code>（存在类型，可换实现、有装盒开销）</td></tr>
+      <tr><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/inheritance/">继承</a></td><td class="lv lv-o">选读</td><td class="dim">override 检查、final——知道即可</td></tr>
+    </tbody>
+  </table>
+
+  <h3>ObjC → Swift 对照<span class="tag">Mapping</span></h3>
+  <table>
+    <thead><tr><th style="width:34%">ObjC 世界</th><th style="width:30%">Swift 世界</th><th>要点</th></tr></thead>
+    <tbody>
+      <tr><td>protocol + delegate</td><td>protocol（常配 <code>AnyObject</code> 约束）+ <code>weak</code> 委托属性</td><td class="dim">只有类能被 weak，所以约束为 AnyObject</td></tr>
+      <tr><td>@optional 协议方法</td><td>协议扩展提供默认实现</td><td class="dim">不实现就落回默认实现，效果近似「可选」</td></tr>
+      <tr><td>category</td><td>extension</td><td class="dim">extension 不能加存储属性、不能 override；category 可用关联对象模拟属性</td></tr>
+      <tr><td><code>NSArray&lt;NSString *&gt;</code> 轻量泛型</td><td>真泛型 <code>[String]</code></td><td class="dim">编译期强约束，无需运行时断言</td></tr>
+      <tr><td><code>instancetype</code></td><td>泛型返回 / <code>some</code></td><td class="dim">不透明类型是「调用方仍知道具体能力」的返回写法</td></tr>
+    </tbody>
+  </table>
+
+  <h3>动手练<span class="tag">Practice</span></h3>
+  <ol class="tasks">
+    <li>定义 <code>protocol Drawable { var area: Double { get } }</code>，用协议扩展给默认 <code>description</code>；让 struct / enum 各自遵循，验证默认实现的生效路径。</li>
+    <li>写泛型栈 <code>struct Stack&lt;Element&gt;</code>，加一个 <code>where Element: Equatable</code> 的 <code>contains(_:)</code>。</li>
+    <li>写 <code>class Vehicle</code>：指定构造器 + <code>convenience</code> 构造器 + 子类 override，亲手体会「先初始化自己的存储属性，再 super.init」的两段式顺序。</li>
+  </ol>
+
+  <h3>面试自测<span class="tag">Self-check</span></h3>
+  <details><summary>extension 能加存储属性吗？为什么？</summary><p>不能。extension 只能加计算属性和方法——它无法参与实例内存布局（存储属性决定内存大小），Swift 也没有 ObjC 关联对象那套运行时机制（不依赖 ObjC runtime 时）。加属性要求只能写成计算属性。</p></details>
+  <details><summary>协议扩展的默认实现，调用时走什么派发？</summary><p>变量声明为协议类型（<code>any P</code>）时走 witness table（协议见证表）；声明为具体类型时直接静态派发。经典坑：默认实现方法不会被「类的 vtable」覆盖——标 <code>any</code> 的变量看到的是协议默认实现还是类型自身实现，取决于类型自身有没有提供自己的实现。这就是「协议派发」高频题的出处：<a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/protocols/">协议</a>、<a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/opaquetypes/">不透明类型</a>。</p></details>
+  <details><summary>some 和 any 的区别？</summary><p><code>some P</code>（不透明类型）：调用方仍得到某个固定具体类型，编译期单一定型，无装盒开销；<code>any P</code>（封装协议类型/存在类型）：可装任何遵循者、运行时可换，需装箱且有动态派发开销。详见<a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/opaquetypes/">不透明类型和封装协议类型</a>。</p></details>
+  <details><summary>两段式初始化是什么？</summary><p>第一段：自上而下（子类先）把自己的存储属性全部初始化；第二段：自下而上（super.init 之后）再修改继承来的属性、调用方法。这保证对象在使用任何属性前都已完整初始化——与 ObjC「先 super 再自己」的惯例正好相反，见<a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/initialization/">构造过程</a>。</p></details>
+</section>
+
+<!-- ================= Day 6 ================= -->
+<section id="day6">
+  <div class="sec-head"><span class="sec-num">D6</span><h2>内存 · 错误处理 · 并发</h2><span class="dur">约 4 小时</span></div>
+  <p class="day-out"><b>今天的产出：</b>能制造并修复一个循环引用；能把「GCD + 回调」的旧写法翻译成 async/await 并说清各组件对应关系。</p>
+
+  <h3>阅读清单<span class="tag">Reading</span></h3>
+  <table>
+    <thead><tr><th style="width:28%">章节</th><th style="width:9%">级别</th><th>重点提示</th></tr></thead>
+    <tbody>
+      <tr><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/automaticreferencecounting/">自动引用计数</a></td><td class="lv lv-r">精读</td><td class="dim">ARC 只管 class 实例与闭包；weak vs unowned 三种循环引用场景与修复；捕获列表 <code>[weak self]</code></td></tr>
+      <tr><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/errorhandling/">错误处理</a></td><td class="lv lv-r">精读</td><td class="dim">Error 协议、throw/throws、do-catch 多分支、<code>try?</code> <code>try!</code>、defer</td></tr>
+      <tr><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/typecasting/">类型转换</a></td><td class="lv lv-r">精读</td><td class="dim">as / is / as? / as!、any 与 AnyObject 的向下转换</td></tr>
+      <tr><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/accesscontrol/">访问控制</a></td><td class="lv lv-r">精读</td><td class="dim">open &gt; public &gt; internal &gt; fileprivate &gt; private；默认 internal</td></tr>
+      <tr><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/concurrency/">并发</a></td><td class="lv lv-r">精读</td><td class="dim">async/await、Task 与 TaskGroup、actor 隔离、Sendable、@MainActor；概念层面吃透即可</td></tr>
+      <tr><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/deinitialization/">析构过程</a></td><td class="lv lv-o">选读</td><td class="dim">deinit 在引用计数归零时调用，仅类有</td></tr>
+      <tr><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/memorysafety/">内存安全</a></td><td class="lv lv-o">选读</td><td class="dim">独占访问（inout 冲突检测），面试极少深入</td></tr>
+    </tbody>
+  </table>
+
+  <h3>ObjC → Swift 对照<span class="tag">Mapping</span></h3>
+  <table>
+    <thead><tr><th style="width:34%">ObjC 世界</th><th style="width:30%">Swift 世界</th><th>要点</th></tr></thead>
+    <tbody>
+      <tr><td><code>__weak</code></td><td><code>weak</code></td><td class="dim">必须声明为 Optional var，所指对象释放时自动置 nil</td></tr>
+      <tr><td><code>unsafe_unretained</code></td><td><code>unowned</code></td><td class="dim">非 Optional、始终假定有效；访问已释放对象直接崩溃</td></tr>
+      <tr><td><code>NSError **</code> 出参</td><td><code>throws</code> + do-catch</td><td class="dim">错误是值（常为 enum），编译器强制处理；<code>try?</code> 转可选</td></tr>
+      <tr><td>GCD 派发 + 回调嵌套</td><td><code>async/await</code> + <code>Task</code></td><td class="dim">顺序写法表达异步，编译器检查挂起点</td></tr>
+      <tr><td>串行队列保护共享状态</td><td><code>actor</code></td><td class="dim">编译期隔离：外部访问其状态必须 await</td></tr>
+      <tr><td><code>dispatch_get_main_queue</code></td><td><code>@MainActor</code></td><td class="dim">标注类型/方法，编译器保证在主 actor 执行</td></tr>
+    </tbody>
+  </table>
+
+  <h3>动手练<span class="tag">Practice</span></h3>
+  <ol class="tasks">
+    <li>造 <code>class A { var b: B? } / class B { var a: A? }</code> 循环引用，deinit 打印确认未释放；分别用 weak、unowned 修复并验证。</li>
+    <li>写三个模拟异步接口（async 函数 + sleep），用 <code>async let</code> 并发请求后汇总结果；再改用 TaskGroup 做一遍。</li>
+    <li>自定义 <code>enum HttpError: Error</code>，写 do-catch 按 case 分支捕获，再演示 <code>try?</code> 与 defer（模拟关闭文件句柄）。</li>
+  </ol>
+
+  <h3>面试自测<span class="tag">Self-check</span></h3>
+  <details><summary>weak 和 unowned 怎么选？</summary><p>对方生命周期可能短于自己（或等长关系不确定）→ weak；能证明「自己存活期间对方必然存在」→ unowned（少一次解包）。unowned 访问已释放对象等于访问悬垂指针，直接崩溃——语义上对应 ObjC 的 unsafe_unretained。出处：<a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/automaticreferencecounting/">自动引用计数</a>。</p></details>
+  <details><summary>async/await 相比 GCD 的本质改进？</summary><p>用顺序语法表达异步控制流，消除回调金字塔与「回调里丢上下文」的错误高发区；挂起点由编译器标记，取消与优先级有统一模型（Task）；actor 把「串行队列保护状态」从纪律变成类型系统约束。出处：<a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/concurrency/">并发</a>。</p></details>
+  <details><summary>actor 和串行队列的区别？</summary><p>都是串行化访问，但 actor 是语言级隔离：编译器强制外部访问走 await，防止忘记切队列；串行队列只靠口头纪律。actor 内部可自由用同步代码访问自身状态。</p></details>
+  <details><summary>defer 的执行时机？</summary><p>当前作用域退出前执行，无论 return、throw 还是正常走完。典型用途：把「打开/关闭」「加锁/解锁」写在一起。见<a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/errorhandling/">错误处理</a>的 defer 一节。</p></details>
+</section>
+
+<!-- ================= Day 7 ================= -->
+<section id="day7">
+  <div class="sec-head"><span class="sec-num">D7</span><h2>混编 · 复习 · 模拟面试</h2><span class="dur">约 4 小时</span></div>
+  <p class="day-out"><b>今天的产出：</b>导览 30 分钟内复读完毕；30 道高频题口头作答率 100%；5 道大题写出作答提纲。</p>
+
+  <h3>上午：复读与查漏<span class="tag">Review</span></h3>
+  <ul class="tight">
+    <li>把 <a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/guidedtour/">Swift 导览</a> 再读一遍——这次应该在 30 分钟内读完，卡壳的小节回到对应章节补课。</li>
+    <li>把 D1–D6 的「面试自测」全部重答一遍，只看题目。</li>
+  </ul>
+
+  <h3>下午：ObjC 混编速记<span class="tag">Interop</span></h3>
+  <p>随书没有混编专章，以下是面试会问的最小集合（详细资料见<a href="#extra">补充资料</a>，属于文档外官方来源）：</p>
+  <ul class="tight">
+    <li><b>ObjC → Swift</b>：靠 Bridging Header 桥接头引入；ObjC 的 <code>nullable/nonnull</code> 注解决定生成 Optional 与否——所以老代码要补 nullability 宏。</li>
+    <li><b>Swift → ObjC</b>：编译器自动生成 <code>产品名-Swift.h</code>；Swift 类型要暴露给 ObjC runtime（selector、KVO、通知中心）需标 <code>@objc</code> / <code>@objcMembers</code>。</li>
+    <li><b>继承与互操作</b>：Swift 类可以继承 ObjC 类（所以 UIViewController 直接继承）；<code>@NSManaged</code> 用于 Core Data 属性；<code>String ↔ NSString</code>、<code>[T] ↔ NSArray</code> 自动桥接。</li>
+    <li><b>轻量泛型 → 真泛型</b>：ObjC 的 <code>NSArray&lt;T *&gt;</code> 只是编译器提示，Swift 泛型是完整类型系统特性。</li>
+  </ul>
+
+  <h3>晚上：模拟面试五道大题<span class="tag">Mock</span></h3>
+  <ol class="tasks">
+    <li><b>派发机制全景</b>：struct/enum/final/private/extension 默认方法 → 直接派发；class 实例方法 → 函数表（vtable）；协议要求 → witness table；@objc dynamic → 消息派发。追问：协议扩展默认实现走哪条？（见 D5 自测）<sup>*</sup></li>
+    <li><b>struct vs class</b>：值语义/引用语义、CoW、官方选择标准、什么时候必须 class。</li>
+    <li><b>讲一个你项目里的循环引用案例</b>：从 ObjC 的 delegate/block 循环引用，讲到 Swift 的 <code>[weak self]</code>/unowned，说清「谁强引用谁」的链条。</li>
+    <li><b>从 GCD 迁移到 Swift Concurrency</b>：async/await、actor、@MainActor、Sendable 各解决什么问题；旧回调 API 如何包装成 async（说思路即可）。</li>
+    <li><b>架构分层题</b>：模型层 struct + Codable、服务层协议 + 默认实现（可测试性）、视图层继承 UIViewController——逐层说清类型选择理由。</li>
+  </ol>
+  <p class="small-note">标 <sup>*</sup> 的题在 TSPL 中没有专章讲解，按文档相关章节结论 + 社区共识作答，面试前建议再看一份派发机制总结文章（如 SwiftGG 博客站内检索「方法派发」）。</p>
+</section>
+
+<!-- ================= 02 高频考点速查 ================= -->
+<section id="quiz">
+  <div class="sec-head"><span class="sec-num">02</span><h2>高频考点速查</h2><span class="dur">32 题 · 每题 30 秒口头作答</span></div>
+  <p>面试前最后过一遍的清单。「出处」列可点回原文核对。标 <code>*</code> 的条目文档无专章，按相关章节 + 社区共识作答。</p>
+
+  <h3>语言基础<span class="tag">Basics</span></h3>
+  <table>
+    <thead><tr><th style="width:30%">问题</th><th style="width:47%">答题要点</th><th>出处</th></tr></thead>
+    <tbody>
+      <tr><td>let 和 var 的区别？</td><td class="dim">let 只赋值一次但不必编译期确定；优先用 let</td><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/thebasics/">基础知识</a></td></tr>
+      <tr><td>Optional 是什么？底层实现？</td><td class="dim">泛型枚举 <code>Optional&lt;Wrapped&gt;</code>，nil 即 .none</td><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/thebasics/">基础知识</a> · <a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/generics/">泛型</a></td></tr>
+      <tr><td>解包方式有哪几种？</td><td class="dim">if let / guard let / ?? / 强制 ! / IUO / 可选链 ?.</td><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/thebasics/">基础知识</a></td></tr>
+      <tr><td>guard let vs if let？</td><td class="dim">guard 提前退出 + 解包变量作用域更大</td><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/controlflow/">控制流</a></td></tr>
+      <tr><td>== 和 === 的区别？</td><td class="dim">值相等 vs 同一实例（仅类）</td><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/classesandstructures/">结构体和类</a></td></tr>
+      <tr><td>Swift 有隐式类型转换吗？</td><td class="dim">没有，数值间也必须显式构造</td><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/thebasics/">基础知识</a></td></tr>
+    </tbody>
+  </table>
+
+  <h3>类型系统<span class="tag">Types</span></h3>
+  <table>
+    <thead><tr><th style="width:30%">问题</th><th style="width:47%">答题要点</th><th>出处</th></tr></thead>
+    <tbody>
+      <tr><td>struct vs class？</td><td class="dim">值/引用语义、继承、deinit、官方默认 struct</td><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/classesandstructures/">结构体和类</a></td></tr>
+      <tr><td>Copy-on-Write？</td><td class="dim">标准库值类型共享存储，写时才拷贝</td><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/classesandstructures/">结构体和类</a><sup>*</sup></td></tr>
+      <tr><td>枚举原始值 vs 关联值？</td><td class="dim">声明时固定 vs 实例时携带；<code>init?(rawValue:)</code> 可失败</td><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/enumerations/">枚举</a></td></tr>
+      <tr><td>mutating 的作用？</td><td class="dim">值类型方法要改 self 必须标注</td><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/methods/">方法</a></td></tr>
+      <tr><td>static 和 class 的区别？</td><td class="dim">class 成员可被子类重写，static 不可</td><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/methods/">方法</a></td></tr>
+      <tr><td>计算属性和存储属性？</td><td class="dim">计算属性无存储、每次求值；观察器 willSet/didSet 不在构造器触发</td><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/properties/">属性</a></td></tr>
+    </tbody>
+  </table>
+
+  <h3>派发与运行时<span class="tag">Dispatch</span></h3>
+  <table>
+    <thead><tr><th style="width:30%">问题</th><th style="width:47%">答题要点</th><th>出处</th></tr></thead>
+    <tbody>
+      <tr><td>Swift 方法派发方式有哪几种？<sup>*</sup></td><td class="dim">直接派发 / vtable / witness table / @objc dynamic 消息</td><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/protocols/">协议</a> · <a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/extensions/">扩展</a><sup>*</sup></td></tr>
+      <tr><td>extension 里的方法能被 override 吗？<sup>*</sup></td><td class="dim">不能，默认静态派发（协议要求除外）</td><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/extensions/">扩展</a><sup>*</sup></td></tr>
+      <tr><td>协议扩展默认实现怎么被调用？</td><td class="dim">any 协议类型走 witness；具体类型静态派发</td><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/protocols/">协议</a></td></tr>
+      <tr><td>final 的意义？<sup>*</sup></td><td class="dim">禁继承/重写，允许编译器静态派发优化</td><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/inheritance/">继承</a><sup>*</sup></td></tr>
+      <tr><td>@objc 和 dynamic 的作用？<sup>*</sup></td><td class="dim">暴露给 ObjC runtime；dynamic 走消息派发，支持 KVO/swizzling</td><td><a href="#extra">补充资料</a><sup>*</sup></td></tr>
+    </tbody>
+  </table>
+
+  <h3>内存与错误<span class="tag">Memory &amp; Error</span></h3>
+  <table>
+    <thead><tr><th style="width:30%">问题</th><th style="width:47%">答题要点</th><th>出处</th></tr></thead>
+    <tbody>
+      <tr><td>Swift ARC 和 ObjC 的区别？</td><td class="dim">机制同源；值类型不参与引用计数，只有 class 实例与闭包</td><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/automaticreferencecounting/">自动引用计数</a></td></tr>
+      <tr><td>weak vs unowned？</td><td class="dim">weak 可选可置 nil；unowned 非可选，悬垂即崩（类似 unsafe_unretained）</td><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/automaticreferencecounting/">自动引用计数</a></td></tr>
+      <tr><td>闭包循环引用怎么解决？</td><td class="dim">捕获列表 [weak self] / [unowned self]，先画「谁强引用谁」的环</td><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/automaticreferencecounting/">自动引用计数</a></td></tr>
+      <tr><td>deinit 什么时候调用？</td><td class="dim">实例引用计数归零时；仅类有，值类型没有</td><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/deinitialization/">析构过程</a></td></tr>
+      <tr><td>Swift 错误处理和 NSError 对比？</td><td class="dim">错误是值（enum: Error），throws 强制处理，无异常开销/崩溃风险</td><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/errorhandling/">错误处理</a></td></tr>
+      <tr><td>try / try? / try! / rethrows？</td><td class="dim">传播 / 转可选 / 崩溃断言 / 仅当参数闭包抛才抛</td><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/errorhandling/">错误处理</a></td></tr>
+      <tr><td>defer 的用途？</td><td class="dim">作用域退出前必执行；初始化与扫尾写在一起</td><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/errorhandling/">错误处理</a></td></tr>
+      <tr><td>访问控制五级？</td><td class="dim">open（模块外可继承重写）＞ public ＞ internal（默认）＞ fileprivate ＞ private</td><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/accesscontrol/">访问控制</a></td></tr>
+    </tbody>
+  </table>
+
+  <h3>协议 · 泛型 · 并发<span class="tag">Protocol · Generic · Concurrency</span></h3>
+  <table>
+    <thead><tr><th style="width:30%">问题</th><th style="width:47%">答题要点</th><th>出处</th></tr></thead>
+    <tbody>
+      <tr><td>面向协议编程（POP）是什么？</td><td class="dim">协议 + 扩展默认实现组织行为，组合优于继承；标准库风格</td><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/protocols/">协议</a></td></tr>
+      <tr><td>extension 和 category 的区别？</td><td class="dim">extension 不能加存储属性/不能 override；category 靠 runtime 关联对象模拟属性</td><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/extensions/">扩展</a><sup>*</sup></td></tr>
+      <tr><td>泛型 where 子句？</td><td class="dim">约束关联类型、要求类型相等/遵循协议</td><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/generics/">泛型</a></td></tr>
+      <tr><td>some 和 any 的区别？</td><td class="dim">some 不透明（编译期单一定型、零开销）；any 存在类型（可换实现、装箱开销）</td><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/opaquetypes/">不透明类型</a></td></tr>
+      <tr><td>async/await 解决什么？</td><td class="dim">顺序语法表达异步；Task 统一取消/优先级；编译器检查挂起点</td><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/concurrency/">并发</a></td></tr>
+      <tr><td>actor 是什么？和串行队列区别？</td><td class="dim">引用类型 + 编译期串行隔离；外部访问必须 await，纪律变约束</td><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/concurrency/">并发</a></td></tr>
+      <tr><td>@MainActor 的作用？</td><td class="dim">把类型/方法隔离到主 actor，UI 更新编译期保证</td><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/concurrency/">并发</a></td></tr>
+      <tr><td>Sendable 是什么？</td><td class="dim">标记类型可安全跨并发域传递；值类型天然安全</td><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/concurrency/">并发</a></td></tr>
+      <tr><td>Task 和 TaskGroup？</td><td class="dim">Task 是异步任务单元（可从同步代码启动）；Group 管理一组并发子任务</td><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/concurrency/">并发</a></td></tr>
+    </tbody>
+  </table>
+
+  <h3>混编<span class="tag">Interop</span></h3>
+  <table>
+    <thead><tr><th style="width:30%">问题</th><th style="width:47%">答题要点</th><th>出处</th></tr></thead>
+    <tbody>
+      <tr><td>Swift 怎么调用 ObjC？ObjC 怎么调 Swift？</td><td class="dim">Bridging Header 引入 ObjC；编译器生成「产品名-Swift.h」反向暴露</td><td><a href="#extra">补充资料</a><sup>*</sup></td></tr>
+      <tr><td>nullability 和 Optional 的关系？</td><td class="dim">nullable → Optional；nonnull → 非可选；未标注会有告警</td><td><a href="#extra">补充资料</a><sup>*</sup></td></tr>
+      <tr><td>String 和 NSString 什么关系？</td><td class="dim">自动桥接互换；String 是值类型 + Swift 特性（插值/区间）</td><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/stringsandcharacters/">字符串和字符</a><sup>*</sup></td></tr>
+      <tr><td>runtime swizzling 在 Swift 里还能用吗？</td><td class="dim">仅对 @objc dynamic 方法可行；纯 Swift 方法静态派发换不了实现</td><td><a href="#extra">补充资料</a><sup>*</sup></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ================= 03 ObjC ↔ Swift 速查 ================= -->
+<section id="cheat">
+  <div class="sec-head"><span class="sec-num">03</span><h2>ObjC ↔ Swift 概念速查表</h2><span class="dur">28 组对照</span></div>
+  <p>白板手写或口头作答时按这张表找锚点。最后一列是可点的原文出处。</p>
+  <table>
+    <thead><tr><th style="width:30%">ObjC</th><th style="width:30%">Swift</th><th style="width:26%">一句话差异</th><th>出处</th></tr></thead>
+    <tbody>
+      <tr><td><code>const</code> / <code>readonly</code></td><td><code>let</code></td><td class="dim">只赋一次，不必编译期常量</td><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/thebasics/">基础知识</a></td></tr>
+      <tr><td><code>nil</code> / <code>NULL</code> / <code>Nil</code> / <code>NSNull</code></td><td><code>nil</code></td><td class="dim">统一；仅 Optional 可为 nil</td><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/thebasics/">基础知识</a></td></tr>
+      <tr><td><code>stringWithFormat:</code></td><td>插值 <code>\(x)</code></td><td class="dim">类型安全的字符串组装</td><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/stringsandcharacters/">字符串和字符</a></td></tr>
+      <tr><td><code>NSArray</code> / <code>NSMutableArray</code></td><td><code>[T]</code>（let/var）</td><td class="dim">永远是值类型，赋值即拷贝</td><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/collectiontypes/">集合类型</a></td></tr>
+      <tr><td><code>NSDictionary</code> / <code>NSSet</code></td><td><code>[K: V]</code> / <code>Set&lt;T&gt;</code></td><td class="dim">强类型键值，取值返回 Optional</td><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/collectiontypes/">集合类型</a></td></tr>
+      <tr><td><code>NS_ENUM</code> / <code>NS_OPTIONS</code></td><td><code>enum</code> + rawValue / <code>OptionSet</code></td><td class="dim">还有关联值这个超集</td><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/enumerations/">枚举</a></td></tr>
+      <tr><td><code>id</code></td><td><code>any P</code> / 泛型</td><td class="dim">存在类型有约束可依</td><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/opaquetypes/">不透明类型</a></td></tr>
+      <tr><td><code>instancetype</code></td><td>泛型返回 / <code>some</code></td><td class="dim">编译期保留具体类型信息</td><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/opaquetypes/">不透明类型</a></td></tr>
+      <tr><td>轻量泛型 <code>NSArray&lt;T *&gt;</code></td><td>真泛型 <code>&lt;T&gt;</code></td><td class="dim">完整类型系统特性</td><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/generics/">泛型</a></td></tr>
+      <tr><td><code>block</code></td><td>闭包 <code>{ ... in ... }</code></td><td class="dim">捕获语义不同（变量 vs 值快照）</td><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/closures/">闭包</a></td></tr>
+      <tr><td><code>__block</code></td><td>默认捕获即共享</td><td class="dim">捕获列表 <code>[x]</code> 才是值快照</td><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/closures/">闭包</a></td></tr>
+      <tr><td><code>__weak</code></td><td><code>weak</code></td><td class="dim">Optional var，自动置 nil</td><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/automaticreferencecounting/">自动引用计数</a></td></tr>
+      <tr><td><code>unsafe_unretained</code></td><td><code>unowned</code></td><td class="dim">悬垂访问即崩溃</td><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/automaticreferencecounting/">自动引用计数</a></td></tr>
+      <tr><td>protocol + delegate</td><td>protocol（AnyObject 约束）+ weak</td><td class="dim">weak 需要类约束</td><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/protocols/">协议</a></td></tr>
+      <tr><td>@optional 协议方法</td><td>协议扩展默认实现</td><td class="dim">编译期"可选"的替代品</td><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/protocols/">协议</a></td></tr>
+      <tr><td>category</td><td>extension</td><td class="dim">无关联对象，不能加存储属性</td><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/extensions/">扩展</a></td></tr>
+      <tr><td><code>@property</code></td><td>存储属性 / 计算属性</td><td class="dim">getter/setter 是语言内建</td><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/properties/">属性</a></td></tr>
+      <tr><td>手动 KVO / 通知</td><td><code>willSet / didSet</code></td><td class="dim">构造期赋值不触发</td><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/properties/">属性</a></td></tr>
+      <tr><td><code>+ (void)foo</code></td><td><code>static</code> / <code>class</code></td><td class="dim">class 允许子类重写</td><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/methods/">方法</a></td></tr>
+      <tr><td>@interface + @implementation</td><td>单文件 <code>class</code></td><td class="dim">声明实现合一</td><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/classesandstructures/">结构体和类</a></td></tr>
+      <tr><td><code>NSError **</code></td><td><code>throws</code> / <code>Result</code></td><td class="dim">错误是值，编译器强制处理</td><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/errorhandling/">错误处理</a></td></tr>
+      <tr><td><code>@try/@catch</code></td><td><code>do-catch</code></td><td class="dim">不用于流程控制，无异常穿透</td><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/errorhandling/">错误处理</a></td></tr>
+      <tr><td>GCD + 回调</td><td><code>async/await</code> + <code>Task</code></td><td class="dim">顺序写法表达异步</td><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/concurrency/">并发</a></td></tr>
+      <tr><td>串行队列保护状态</td><td><code>actor</code></td><td class="dim">编译期隔离</td><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/concurrency/">并发</a></td></tr>
+      <tr><td><code>dispatch_get_main_queue</code></td><td><code>@MainActor</code></td><td class="dim">主线程约束进类型系统</td><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/concurrency/">并发</a></td></tr>
+      <tr><td>nonatomic / atomic</td><td>默认非原子</td><td class="dim">无 atomic 等价物，并发安全交给类型系统</td><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/properties/">属性</a><sup>*</sup></td></tr>
+      <tr><td><code>@synchronized</code></td><td>actor / NSLock / 信号量</td><td class="dim">语言级方案优先</td><td><a href="https://doc.swiftgg.team/documentation/the-swift-programming-language/concurrency/">并发</a><sup>*</sup></td></tr>
+      <tr><td>runtime swizzling</td><td>仅 @objc dynamic 可行</td><td class="dim">纯 Swift 方法换不了实现</td><td><a href="#extra">补充资料</a><sup>*</sup></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ================= 04 补充资料 ================= -->
+<section id="extra">
+  <div class="sec-head"><span class="sec-num">04</span><h2>补充资料（文档外）</h2><span class="dur">官方来源 · 已核验可访问</span></div>
+  <p>TSPL 讲语言本身，以下主题它不覆盖；面试涉及混编与工程实践时看这几份，全部来自 Apple / swift.org 官方。</p>
+  <table>
+    <thead><tr><th style="width:34%">资料</th><th>什么时候看</th></tr></thead>
+    <tbody>
+      <tr><td><a href="https://developer.apple.com/documentation/swift/migrating-your-objective-c-code-to-swift">Migrating Your Objective-C Code to Swift</a>（Apple）</td><td class="dim">Day 7 混编速记的展开版：桥接、nullability、@objc 细节</td></tr>
+      <tr><td><a href="https://www.swift.org/migration/documentation/migrationguide/">Swift Migration Guide</a>（swift.org）</td><td class="dim">被问「项目怎么从 ObjC 迁到 Swift」时的官方答案</td></tr>
+      <tr><td><a href="https://developer.apple.com/documentation/swift/choosing-between-structures-and-classes">Choosing Between Structures and Classes</a>（Apple）</td><td class="dim">struct vs class 大题的官方论证</td></tr>
+      <tr><td><a href="https://www.swift.org/documentation/api-design-guidelines/">API Design Guidelines</a>（swift.org）</td><td class="dim">聊代码风格、命名约定时的加分项，20 分钟读完</td></tr>
+      <tr><td><a href="https://developer.apple.com/documentation/swift/concurrency">Swift Concurrency 文档</a>（Apple）</td><td class="dim">actor/Sendable 想再深一层时看</td></tr>
+      <tr><td><a href="https://developer.apple.com/tutorials/swiftui">SwiftUI Tutorials</a>（Apple）</td><td class="dim">岗位写明 SwiftUI 时才看；一周冲刺内只做了解</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ================= Colophon ================= -->
+<section>
+  <div class="colophon">
+    <div class="foot-mark">///</div>
+    <p>本手册依据 The Swift Programming Language（6.2.3）中文版整理，原文版权归 SwiftGG 翻译组与 swift.org（CC BY 4.0）；所有章节链接均指向 doc.swiftgg.team，已于 2026-11-19 逐条核验可访问。「补充资料」来自 developer.apple.com 与 swift.org，链接同样经过核验。</p>
+    <p>文中时长为估计值；「面试自测」与「高频考点速查」的答题要点是对文档结论的压缩表述，带 <code>*</code> 者超出文档范围，请在面试前按提示补充信源。祝面试顺利。</p>
+  </div>
+</section>
+
+</main>
+</div>
+
+</body>
+</html>
